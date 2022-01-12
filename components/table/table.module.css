@@ -13,7 +13,6 @@
     background-color: #731963;
     color: #fff;
     font-size: .8rem;
-    font-family: Verdana, Geneva, Tahoma, sans-serif    
 }
 
 .table table thead th {
@@ -43,11 +42,11 @@
 
 @media screen and (max-width: 600px) {
     .table table thead th {
-        font-size: .6rem;
+        font-size: .8rem;
     }
 
     .table table tbody td {
-        font-size: .6rem;
+        font-size: .8rem;
         font-weight: bold;
     }
 }

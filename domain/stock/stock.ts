@@ -9,6 +9,7 @@ export interface Holder {
 export interface StockState{
     price: number;
     priceToEarnings: number;
+    debtByAnnualEquity: number;
     holders: Holder[];
 }
 
@@ -20,7 +21,7 @@ export interface StockEvent{
 
 export interface StockHistory{
     period: string;
-    earningsPerShare: number;
+    value: number;
 }    
 
 export interface Stock {
@@ -28,5 +29,8 @@ export interface Stock {
     business: string;
     currentState: StockState;
     events: StockEvent[];
-    history: StockHistory[];
+    history: {        
+        earningsPerShare: StockHistory[];
+        netMargin: StockHistory[];
+    }
 }

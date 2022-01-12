@@ -10,9 +10,9 @@ export class ProfitConstancy5Years implements Insight<Stock> {
         for (let i = 1; i < maxYear; i++) {
             const year = new Date().getFullYear() - i
 
-            const item = data.history?.find(item => new Date(item.period).getFullYear() === year)
+            const item = data.history?.earningsPerShare?.find(item => new Date(item.period).getFullYear() === year)
 
-            if(!item || item.earningsPerShare < 0) {
+            if(!item || item.value < 0) {
                 if(!item && i === 1) {
                     maxYear++
                     continue
@@ -34,9 +34,9 @@ export class ProfitConstancy10Years implements Insight<Stock> {
         for (let i = 1; i < maxYear; i++) {
             const year = new Date().getFullYear() - i
 
-            const item = data.history?.find(item => new Date(item.period).getFullYear() === year)
+            const item = data.history?.earningsPerShare?.find(item => new Date(item.period).getFullYear() === year)
 
-            if(!item || item.earningsPerShare < 0) {
+            if(!item || item.value < 0) {
                 if(!item && i === 1) {
                     maxYear++
                     continue

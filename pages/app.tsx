@@ -5,7 +5,7 @@ import React from "react";
 import { Insights } from "../components/insights";
 import Table from "../components/table";
 import { Insight } from "../domain/insight";
-import { DividendConstancy, PriceToEarnings, ProfitConstancy5Years, ProfitConstancy10Years } from "../domain/stock/insight";
+import { DividendConstancy, PriceToEarnings, ProfitConstancy5Years, ProfitConstancy10Years, DividendValue, NetMargin, RiskyDebt } from "../domain/stock/insight";
 import { Stock } from "../domain/stock/stock";
 import styles from "../styles/App.module.css";
 import { MongoClient } from "mongodb";
@@ -16,10 +16,19 @@ export async function getStaticProps() {
   const options: any = { useNewUrlParser: true, useUnifiedTopology: true };
   const client = await new MongoClient(uri, options).connect();
   const collection = client.db("database").collection("stocks");
-  const stocks = await collection.find().toArray();
+  // @ts-ignore
+  const stocks: Stock[] = await collection.find().toArray();
+
+  stocks.forEach((stock) => {
+    // remove special characters
+    stock.currentState.holders.forEach((holder: any) => {
+      holder.name = holder.name?.replace(/[^a-zA-Z0-9 ]/g, "") ?? "";
+    });
+  });
 
   return {
     props: {
+      // remove special characters
       data: JSON.parse(JSON.stringify(stocks)),
       // once every 24 hours
       revalidate: 60 * 60 * 24,
@@ -40,7 +49,15 @@ interface MappedStock {
 class StockTable extends Table<MappedStock> {}
 class StockInsights extends Insights<Stock> {}
 
-const insights: Insight<Stock>[] = [new DividendConstancy(), new PriceToEarnings(), new ProfitConstancy5Years(), new ProfitConstancy10Years()];
+const insights: Insight<Stock>[] = [
+  new DividendConstancy(),
+  new PriceToEarnings(),
+  new ProfitConstancy5Years(),
+  new ProfitConstancy10Years(),
+  new DividendValue(),
+  new NetMargin(),
+  new RiskyDebt()
+];
 
 const App: NextPage<{ data: Stock[] }> = ({ data }) => {
   const [stock, setStock] = React.useState<Stock | null>(null);
@@ -96,6 +113,10 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
         <title>Bovespa insights</title>
         <meta name="description" content="Bovespa insights" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link href="https://fonts.googleapis.com/css2?family=Play&display=swap" rel="stylesheet" />
       </Head>
 
       <div className={styles.container}>
@@ -112,12 +133,12 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
           <StockTable
             columns={[
               {
-                title: "Name",
-                dataIndex: "name",
+                title: "Score",
+                dataIndex: "insightsScore",
               },
               {
-                title: "Business",
-                dataIndex: "business",
+                title: "Name",
+                dataIndex: "name",
               },
               {
                 title: "Price",
@@ -130,10 +151,6 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               {
                 title: "Div/5yr",
                 dataIndex: "totalDividendsLast5Years",
-              },
-              {
-                title: "Score",
-                dataIndex: "insightsScore",
               },
             ]}
             dataKey="name"
