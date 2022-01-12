@@ -16,8 +16,6 @@ export class DividendValue implements Insight<Stock> {
 
     const dividendsYearlyAverage = dividendsPaidLast5Years / 5;
 
-    if (dividendsYearlyAverage / price > 0.05) return true;
-
-    return true;
+    return dividendsYearlyAverage / price > 0.05;
   }
 }
