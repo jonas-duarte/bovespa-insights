@@ -78,9 +78,10 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               },
               { name: "", totalShares: 0 }
             );
-
+            
+            const currentYear = new Date().getFullYear();
             const totalDividendsLast5Years = stock.events
-              .filter((event) => new Date(event.date).getFullYear() >= year - 6 && new Date(event.date).getFullYear() <= year - 1)
+              .filter((event) => new Date(event.date).getFullYear() >= currentYear - 6 && new Date(event.date).getFullYear() <= currentYear - 1)
               .reduce((acc, event) => {
                 return acc + event.amount;
               }, 0);
