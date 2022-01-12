@@ -60,31 +60,11 @@
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer; 
+  transition: all 0.3s ease;
 }
 
-.hero .heroButtons button{
-  border: 1px solid;
-  overflow: hidden;
-  position: relative;
-}
-
-.hero .heroButtons button:after {
-  background: #fff;
-  content: "";
-  height: 155px;
-  left: -75px;
-  opacity: .2;
-  position: absolute;
-  top: -50px;
-  transform: rotate(35deg);
-  transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
-  width: 50px;
-  z-index: -10;
-}
-
-.hero .heroButtons button:hover::after {
-  left: 120%;
-  transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+.hero .heroButtons button:hover {
+  background-color: #fff3;
 }
 
 
@@ -100,3 +80,4 @@
     font-size: 1rem;
   }
 }
+
