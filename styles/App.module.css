@@ -1,3 +1,32 @@
+.header {
+  background-color: #731963;
+  height: 50px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+}
+
+.header .logo {
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  cursor: pointer;
+}
+
+.header .logo:hover{
+  color: #fffc;
+}
+
+.header img {
+  height: 40px;
+}
+
 .container {
   position: relative;
   width: 100vw;

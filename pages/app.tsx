@@ -5,71 +5,22 @@ import React from "react";
 import { Insights } from "../components/insights";
 import Table from "../components/table";
 import { Insight } from "../domain/insight";
-import { DividendConstancy, PriceToEarnings, ProfitConstancy } from "../domain/stock/insight";
+import { DividendConstancy, PriceToEarnings, ProfitConstancy5Years, ProfitConstancy10Years } from "../domain/stock/insight";
 import { Stock } from "../domain/stock/stock";
 import styles from "../styles/App.module.css";
-
-interface FinnhubApiStock {
-  symbol: string;
-  description: string;
-}
+import { MongoClient } from "mongodb";
+import Link from "next/link";
 
 export async function getStaticProps() {
-  const mockData: Stock[] = [
-    {
-      name: "Apple",
-      business: "Technology",
-      currentState: {
-        price: 100,
-        holders: [
-          {
-            name: "Steve",
-            ordinaryShares: 21,
-            preferredShares: 0,
-            totalShares: 14,
-          },
-        ],
-      },
-      events: [
-        {
-          amount: 100,
-          date: new Date("2020-01-01").getTime(),
-        },
-      ],
-      history: [
-        { period: "2020-01-01", profit: 100, revenue: 100 },
-        { period: "2020-01-01", profit: 100, revenue: 100 },
-        { period: "2020-01-01", profit: 100, revenue: 100 },
-        { period: "2020-01-01", profit: 100, revenue: 100 },
-      ],
-    },
-    {
-      name: "Microsoft",
-      business: "Technology",
-      currentState: {
-        price: 100,
-        holders: [
-          {
-            name: "Bill",
-            ordinaryShares: 51,
-            preferredShares: 0,
-            totalShares: 14,
-          },
-        ],
-      },
-      events: [
-        {
-          amount: 100,
-          date: new Date("2020-01-01").getTime(),
-        },
-      ],
-      history: [{ period: "2020-01-01", profit: 100, revenue: 100 }],
-    },
-  ];
+  const uri = process.env.MONGODB_URI ?? "";
+  const options: any = { useNewUrlParser: true, useUnifiedTopology: true };
+  const client = await new MongoClient(uri, options).connect();
+  const collection = client.db("database").collection("stocks");
+  const stocks = await collection.find().toArray();
 
   return {
     props: {
-      data: mockData,
+      data: JSON.parse(JSON.stringify(stocks)),
       // once every 24 hours
       revalidate: 60 * 60 * 24,
     },
@@ -81,40 +32,63 @@ interface MappedStock {
   business: string;
   price: number;
   mainHolder: string;
-  totalDividendsLast5Years: number;
+  totalDividendsLast5Years: string;
+  insightsScore: string;
+  positiveInsights: number;
 }
 
 class StockTable extends Table<MappedStock> {}
 class StockInsights extends Insights<Stock> {}
 
-const insights: Insight<Stock>[] = [new DividendConstancy(), new PriceToEarnings(), new ProfitConstancy()];
+const insights: Insight<Stock>[] = [new DividendConstancy(), new PriceToEarnings(), new ProfitConstancy5Years(), new ProfitConstancy10Years()];
 
 const App: NextPage<{ data: Stock[] }> = ({ data }) => {
   const [stock, setStock] = React.useState<Stock | null>(null);
 
-  const mappedStockData = data.map((stock) => {
-    const mainHolder = stock.currentState.holders.reduce(
-      (acc, holder) => {
-        if (acc.totalShares < holder.totalShares) {
-          return holder;
-        }
-        return acc;
-      },
-      { name: "", totalShares: 0 }
-    );
+  const [mappedData, setMappedData] = React.useState<MappedStock[]>([]);
 
-    const totalDividendsLast5Years = stock.events.reduce((acc, event) => {
-      return acc + event.amount;
-    }, 0);
+  React.useEffect(() => {
+    if (data) {
+      (async () => {
+        const mappedData: MappedStock[] = await Promise.all(
+          data.map(async (stock) => {
+            const mainHolder = stock.currentState.holders.reduce(
+              (acc, holder) => {
+                if (acc.totalShares < holder.totalShares) {
+                  return holder;
+                }
+                return acc;
+              },
+              { name: "", totalShares: 0 }
+            );
 
-    return {
-      name: stock.name,
-      business: stock.business,
-      price: stock.currentState.price,
-      mainHolder: `${mainHolder.name} (${mainHolder.totalShares}%)`,
-      totalDividendsLast5Years,
-    };
-  });
+            const totalDividendsLast5Years = stock.events.reduce((acc, event) => {
+              return acc + event.amount;
+            }, 0);
+
+            const positiveInsights = (await Promise.all(insights.map((i) => i.verify(stock)))).filter((res) => res).length;
+
+            const insightsScore = `${positiveInsights}/${insights.length}`;
+
+            const mappedStock: MappedStock = {
+              // remove special characters
+              name: stock.name.replace(/[^\w\s]/gi, ""),
+              business: stock.business,
+              price: stock.currentState.price,
+              mainHolder: `${mainHolder.name} (${mainHolder.totalShares}%)`,
+              totalDividendsLast5Years: totalDividendsLast5Years.toFixed(4),
+              insightsScore,
+              positiveInsights,
+            };
+
+            return mappedStock;
+          })
+        );
+
+        setMappedData(mappedData.sort((a, b) => b.positiveInsights - a.positiveInsights));
+      })();
+    }
+  }, [data]);
 
   return (
     <div className={styles.container}>
@@ -126,6 +100,15 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
 
       <div className={styles.container}>
         <div className={styles.table}>
+          <div className={styles.header}>
+            <Link passHref href="/">
+              <div className={styles.logo}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/logo-opaque.svg" alt="Logo" />
+                Bovespa insights
+              </div>
+            </Link>
+          </div>
           <StockTable
             columns={[
               {
@@ -148,9 +131,13 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
                 title: "Div/5yr",
                 dataIndex: "totalDividendsLast5Years",
               },
+              {
+                title: "Score",
+                dataIndex: "insightsScore",
+              },
             ]}
             dataKey="name"
-            data={mappedStockData}
+            data={mappedData}
             onRowClick={(stock) => {
               const _stock = data.find((s) => s.name === stock.name);
               if (_stock) setStock(_stock);
