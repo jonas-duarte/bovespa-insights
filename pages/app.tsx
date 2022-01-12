@@ -79,9 +79,11 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               { name: "", totalShares: 0 }
             );
 
-            const totalDividendsLast5Years = stock.events.reduce((acc, event) => {
-              return acc + event.amount;
-            }, 0);
+            const totalDividendsLast5Years = stock.events
+              .filter((event) => new Date(event.date).getFullYear() >= year - 6 && new Date(event.date).getFullYear() <= year - 1)
+              .reduce((acc, event) => {
+                return acc + event.amount;
+              }, 0);
 
             const positiveInsights = (await Promise.all(insights.map((i) => i.verify(stock)))).filter((res) => res).length;
 
