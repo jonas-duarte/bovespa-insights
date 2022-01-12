@@ -16,7 +16,7 @@ const Home: NextPage = () => {
       <div className={styles.hero}>
         <div className={styles.logo}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/logo.svg" alt="logo" />
+          <img src="/icons/logo-opaque.svg" alt="logo" />
           <div className={styles.heroTitle}>
             Bovespa <br></br>insights
           </div>
