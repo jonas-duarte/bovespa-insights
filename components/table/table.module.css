@@ -1,0 +1,53 @@
+.table {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+}
+
+.table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table table thead {
+    background-color: #731963;
+    color: #fff;
+    font-size: .8rem;
+    font-family: Verdana, Geneva, Tahoma, sans-serif    
+}
+
+.table table thead th {
+    padding: 10px;
+    font-weight: bold;
+    background-color: #731963;
+}
+
+.table table tbody tr{
+    background-color: #73196322;
+    cursor: pointer;
+    box-shadow: 0px 0px 1px #0003;
+}
+.table table tbody tr:nth-child(even) {
+    background-color: #73196344;
+}
+
+.table table tbody tr:hover {
+    background-color: #731963cc;
+    color: #fff;
+}
+
+.table table tbody td {    
+    padding: .3rem;
+    text-align: center;
+}
+
+@media screen and (max-width: 600px) {
+    .table table thead th {
+        font-size: .6rem;
+    }
+
+    .table table tbody td {
+        font-size: .6rem;
+        font-weight: bold;
+    }
+}

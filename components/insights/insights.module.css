@@ -1,0 +1,41 @@
+.insight {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+
+    font-size: 20px;
+    height: 24px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.insight img {
+    height: 24px;
+}
+
+.positive-insight {
+    color: #23967F;
+}
+
+.negative-insight {
+    color: #FF3A20;
+}
+
+.loading-insight {
+    color: #731963;
+}
+
+
+
+@media screen and (max-width: 500px) {
+    .insight {
+        font-size: 14px;
+        height: 20px;
+    }
+
+    .insight img {
+        height: 20px;
+    }
+}

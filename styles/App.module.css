@@ -1,0 +1,74 @@
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.table {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.insights {
+  position: absolute;
+  background-color: white;
+
+  height: 100%;
+  width: 500px;
+  
+  right: 0;
+  transition: right .3s;
+  /* shadow right */
+  box-shadow: 0 0 10px #73196377;
+  border-left: 1px solid #fff;
+}
+
+.insights[data-closed="true"] {
+  right: -500px;
+}
+
+.insightsHeader {
+  background-color: #731963;
+  width: 100%;
+  height: 50px;
+  color: white;
+  font-size: 1.5rem;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.closeInsights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: white;
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #fff6;
+}
+
+
+@media screen and (max-width: 1000px) {
+  .insights {
+    width: 100%;
+    border-left: none;
+    
+  }
+
+  .insights[data-closed="true"] {
+    right: -100%;
+  }
+}
