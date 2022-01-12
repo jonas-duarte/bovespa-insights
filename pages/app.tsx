@@ -145,12 +145,12 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
                 dataIndex: "price",
               },
               {
-                title: "Main Holder",
-                dataIndex: "mainHolder",
-              },
-              {
                 title: "Div/5yr",
                 dataIndex: "totalDividendsLast5Years",
+              },
+              {
+                title: "Main Holder",
+                dataIndex: "mainHolder",
               },
             ]}
             dataKey="name"
