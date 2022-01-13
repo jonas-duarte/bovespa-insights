@@ -5,11 +5,20 @@ import React from "react";
 import { Insights } from "../components/insights";
 import Table from "../components/table";
 import { Insight } from "../domain/insight";
-import { DividendConstancy, PriceToEarnings, ProfitConstancy5Years, ProfitConstancy10Years, DividendValue, NetMargin, RiskyDebt } from "../domain/stock/insight";
+import {
+  DividendConstancy,
+  PriceToEarnings,
+  ProfitConstancy5Years,
+  ProfitConstancy10Years,
+  DividendValue,
+  NetMargin,
+  RiskyDebt,
+} from "../domain/stock/insight";
 import { Stock } from "../domain/stock/stock";
 import styles from "../styles/App.module.css";
 import { MongoClient } from "mongodb";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export async function getStaticProps() {
   const uri = process.env.MONGODB_URI ?? "";
@@ -56,10 +65,13 @@ const insights: Insight<Stock>[] = [
   new ProfitConstancy10Years(),
   new DividendValue(),
   new NetMargin(),
-  new RiskyDebt()
+  new RiskyDebt(),
 ];
 
 const App: NextPage<{ data: Stock[] }> = ({ data }) => {
+  const router = useRouter();
+  const { symbol } = router.query;
+
   const [stock, setStock] = React.useState<Stock | null>(null);
 
   const [mappedData, setMappedData] = React.useState<MappedStock[]>([]);
@@ -78,7 +90,7 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               },
               { name: "", totalShares: 0 }
             );
-            
+
             const currentYear = new Date().getFullYear();
             const totalDividendsLast5Years = stock.events
               .filter((event) => new Date(event.date).getFullYear() >= currentYear - 6 && new Date(event.date).getFullYear() <= currentYear - 1)
@@ -109,6 +121,35 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
       })();
     }
   }, [data]);
+
+  const setStockBySymbol = (symbol: string | null) => {
+    if (symbol) {
+      router.push(`/app?symbol=${symbol}`, undefined, { shallow: true });
+    } else {
+      router.push("/app", undefined, { shallow: true });
+    }
+  };
+
+  React.useEffect(() => {
+    if (symbol) {
+      const _stock = data.find((s) => s.name === symbol);
+      if (_stock) setStock(_stock);
+    } else setStock(null);
+  }, [symbol]);
+
+  const escFunction = React.useCallback((event) => {
+    if (event.keyCode === 27) {
+      setStockBySymbol(null);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    document.addEventListener("keydown", escFunction, false);
+
+    return () => {
+      document.removeEventListener("keydown", escFunction, false);
+    };
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -158,10 +199,7 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
             ]}
             dataKey="name"
             data={mappedData}
-            onRowClick={(stock) => {
-              const _stock = data.find((s) => s.name === stock.name);
-              if (_stock) setStock(_stock);
-            }}
+            onRowClick={(stock) => setStockBySymbol(stock.name)}
           />
         </div>
         <div className={styles.insights} data-closed={!stock}>
@@ -170,7 +208,7 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               <div
                 className={styles.closeInsights}
                 onClick={() => {
-                  setStock(null);
+                  setStockBySymbol(null);
                 }}
               >
                 X
