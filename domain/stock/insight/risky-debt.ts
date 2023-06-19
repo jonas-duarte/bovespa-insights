@@ -6,8 +6,6 @@ export class RiskyDebt implements Insight<Stock> {
   public readonly description = "Annual equity greater than debts";
   async verify(data: Stock): Promise<boolean> {
 
-    console.log
-
     return data.currentState.debtByAnnualEquity < 100
   }
 }

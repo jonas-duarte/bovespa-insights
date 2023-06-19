@@ -1,4 +1,3 @@
-import axios from "axios";
 import type { NextPage } from "next";
 import Head from "next/head";
 import React from "react";
@@ -16,32 +15,32 @@ import {
 } from "../domain/stock/insight";
 import { Stock } from "../domain/stock/stock";
 import styles from "../styles/App.module.css";
-import { MongoClient } from "mongodb";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+// TODO: improve this code to follow a better pattern
 export async function getStaticProps() {
-  const uri = process.env.MONGODB_URI ?? "";
-  const options: any = { useNewUrlParser: true, useUnifiedTopology: true };
-  const client = await new MongoClient(uri, options).connect();
-  const collection = client.db("database").collection("stocks");
-  // @ts-ignore
-  const stocks: Stock[] = await collection.find().toArray();
+  const symbols = await fetch("https://raw.githubusercontent.com/jonas-duarte/bovespa-insights-scrapper/main/src/symbols.json").then((res) => res.json());
 
-  stocks.forEach((stock) => {
-    // remove special characters
-    stock.currentState.holders.forEach((holder: any) => {
-      holder.name = holder.name?.replace(/[^a-zA-Z0-9 ]/g, "") ?? "";
-    });
-  });
+  const stocks = await Promise.all(
+    symbols.map(async (symbol: string) => {
+      try {
+        const stock = await fetch(`https://raw.githubusercontent.com/jonas-duarte/bovespa-insights-scrapper/main/data/${symbol}.json`).then((res) => res.json());
+        return stock;
+      } catch (e) {
+        console.log(`Error fetching stock ${symbol}`, e);
+        return null;
+      }
+    })
+  );
 
   return {
     props: {
       // remove special characters
-      data: JSON.parse(JSON.stringify(stocks)),
-      // once every 24 hours
-      revalidate: 60 * 60 * 24,
+      data: JSON.parse(JSON.stringify(stocks.filter((s) => s))),
     },
+    // once every 24 hours
+    revalidate: 60 * 60 * 24,
   };
 }
 
@@ -55,8 +54,8 @@ interface MappedStock {
   positiveInsights: number;
 }
 
-class StockTable extends Table<MappedStock> {}
-class StockInsights extends Insights<Stock> {}
+class StockTable extends Table<MappedStock> { }
+class StockInsights extends Insights<Stock> { }
 
 const insights: Insight<Stock>[] = [
   new DividendConstancy(),

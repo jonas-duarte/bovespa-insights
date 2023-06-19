@@ -1,4 +1,3 @@
-import { PriceToEarnings } from './insight/price-to-earnings';
 export interface Holder {
     name: string;
     ordinaryShares: number;
