@@ -1,7 +1,31 @@
 import { Stock } from '../stock';
 import { Insight } from '../../insight';
 
+export class ProfitConstancy4Years implements Insight<Stock> {
+    public readonly name = "Profit Constancy"
+    public readonly description= "Consistent profits last 4 years"
+    async verify(data: Stock): Promise<boolean> {
+        let maxYear = 5;
+        for (let i = 1; i < maxYear; i++) {
+            const year = new Date().getFullYear() - i
 
+            const item = data.history?.earningsPerShare?.find(item => new Date(item.period).getFullYear() === year)
+
+            if(item && item.value < 0) {
+                if(!item && i === 1) {
+                    maxYear++
+                    continue
+                }
+                return false
+            }
+        }
+
+        return true;
+    }
+}
+
+
+// TODO: The API doesn't provide data for more than 4 years
 export class ProfitConstancy5Years implements Insight<Stock> {
     public readonly name = "Profit Constancy"
     public readonly description= "Consistent profits last 5 years"

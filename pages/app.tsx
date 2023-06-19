@@ -7,8 +7,7 @@ import { Insight } from "../domain/insight";
 import {
   DividendConstancy,
   PriceToEarnings,
-  ProfitConstancy5Years,
-  ProfitConstancy10Years,
+  ProfitConstancy4Years,
   DividendValue,
   NetMargin,
   RiskyDebt,
@@ -60,8 +59,7 @@ class StockInsights extends Insights<Stock> { }
 const insights: Insight<Stock>[] = [
   new DividendConstancy(),
   new PriceToEarnings(),
-  new ProfitConstancy5Years(),
-  new ProfitConstancy10Years(),
+  new ProfitConstancy4Years(),
   new DividendValue(),
   new NetMargin(),
   new RiskyDebt(),
