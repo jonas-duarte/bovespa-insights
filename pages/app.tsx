@@ -51,6 +51,7 @@ interface MappedStock {
   totalDividendsLast5Years: string;
   insightsScore: string;
   positiveInsights: number;
+  lastUpdate: Date;
 }
 
 class StockTable extends Table<MappedStock> { }
@@ -110,6 +111,7 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               totalDividendsLast5Years: totalDividendsLast5Years.toFixed(4),
               insightsScore,
               positiveInsights,
+              lastUpdate: new Date(stock.lastUpdate)
             };
 
             return mappedStock;
@@ -194,6 +196,11 @@ const App: NextPage<{ data: Stock[] }> = ({ data }) => {
               {
                 title: "Main Holder",
                 dataIndex: "mainHolder",
+              },
+              {
+                title: "Last Updated",
+                dataIndex: "lastUpdate",
+                type: "datetime"
               },
             ]}
             dataKey="name"

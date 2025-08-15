@@ -27,6 +27,7 @@ export interface Stock {
     name: string;
     business: string;
     currentState: StockState;
+    lastUpdate: number;
     events: StockEvent[];
     history: {        
         earningsPerShare: StockHistory[];
